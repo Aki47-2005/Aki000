@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-stage">
+  <div class="console-card console-card--compact">
+    <div class="page-heading">
+      <div><p class="eyebrow">Confirm action</p><h1>Delete Record</h1></div>
+    </div>
+    <p class="console-note console-note--spaced">Delete {{ object }}?</p>
+    <form method="post" class="console-action-row">{% csrf_token %}<button class="btn btn-danger" type="submit">Delete</button></form>
+  </div>
+</section>
+{% endblock %}

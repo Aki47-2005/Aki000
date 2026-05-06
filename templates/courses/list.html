@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-stage">
+  <div class="console-card">
+    <div class="page-heading">
+      <div><p class="eyebrow">Academic catalogue</p><h1>Courses</h1></div>
+      <a class="btn dashboard-action" href="{% url 'course_create' %}"><i class="bi bi-plus-lg"></i> Add Course</a>
+    </div>
+
+    <form class="row g-3 align-items-end console-toolbar mb-4" method="get">
+      <div class="col-12 col-lg-6">
+        <label class="form-label">Search</label>
+        <div class="input-group"><span class="input-group-text"><i class="bi bi-search"></i></span><input class="form-control" name="q" value="{{ query }}" placeholder="Course code or title"></div>
+      </div>
+      <div class="col-12 col-lg-4">
+        <label class="form-label">Semester</label>
+        <select class="form-select" name="semester">
+          <option value="">All semesters</option>
+          {% for item in semesters %}<option value="{{ item }}" {% if item == semester %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-lg-2 d-grid"><button class="btn btn-outline-primary">Apply</button></div>
+    </form>
+
+    <div class="row g-4">
+      {% for course in courses %}
+        <div class="col-12 col-md-6 col-xl-4">
+          <article class="course-card">
+            <div class="d-flex justify-content-between gap-3">
+              <span class="course-code">{{ course.code }}</span>
+              <span class="status-chip">{{ course.credit_units }} credits</span>
+            </div>
+            <h2>{{ course.title }}</h2>
+            <p>{{ course.department }}</p>
+            <div class="tag-row">
+              <span><i class="bi bi-calendar-event"></i> {{ course.semester }}</span>
+              <span><i class="bi bi-clock"></i> {{ course.get_day_of_week_display }} {{ course.start_time }}</span>
+            </div>
+            <div class="capacity-meter">
+              <div style="width: {% widthratio course.seats_taken course.capacity 100 %}%"></div>
+            </div>
+            <small>{{ course.seats_taken }}/{{ course.capacity }} seats filled</small>
+          </article>
+        </div>
+      {% empty %}
+        <div class="col-12"><div class="console-empty">No courses found.</div></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

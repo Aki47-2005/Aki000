@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-stage">
+  <div class="console-card">
+    <div class="page-heading">
+      <div><p class="eyebrow">Approval queue</p><h1>Financial Clearance</h1></div>
+    </div>
+    <div class="table-responsive console-table-wrap">
+      <table class="table align-middle console-table-theme">
+        <thead><tr><th>Student</th><th>Payment Status</th><th>Clearance</th><th>Cleared By</th><th class="text-end">Action</th></tr></thead>
+        <tbody>
+        {% for clearance in clearances %}
+          <tr>
+            <td><strong>{{ clearance.student.full_name }}</strong><br><span class="text-muted">{{ clearance.student.reg_number }}</span></td>
+            <td>
+              {% if clearance.latest_payment %}
+                <span class="status-chip {% if clearance.latest_payment.status == 'VERIFIED' %}status-chip--success{% elif clearance.latest_payment.status == 'REJECTED' %}status-chip--danger{% endif %}">{{ clearance.latest_payment.status }}</span>
+                <div class="small text-muted">UGX {{ clearance.latest_payment.amount }}</div>
+              {% else %}
+                <span class="status-chip">NO PAYMENT</span>
+              {% endif %}
+            </td>
+            <td><span class="status-chip {% if clearance.is_cleared %}status-chip--success{% else %}status-chip--danger{% endif %}">{{ clearance.is_cleared|yesno:"Cleared,Not cleared" }}</span></td>
+            <td>{{ clearance.cleared_by|default:"-" }}<br><span class="small text-muted">{{ clearance.cleared_at|default:"" }}</span></td>
+            <td class="text-end">
+              <form class="d-inline" method="post" action="{% url 'decide_clearance' clearance.pk 'approve' %}" data-confirm="Approve this student's clearance?">{% csrf_token %}<button class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Approve</button></form>
+              <form class="d-inline" method="post" action="{% url 'decide_clearance' clearance.pk 'reject' %}" data-confirm="Reject this student's clearance?">{% csrf_token %}<button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i> Reject</button></form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="text-muted">No clearance records.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

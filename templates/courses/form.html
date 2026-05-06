@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-stage">
+  <div class="console-card console-card--form">
+    <div class="page-heading">
+      <div><p class="eyebrow">Course setup</p><h1>{{ title }}</h1></div>
+    </div>
+    <form method="post" class="form console-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="console-action-row">
+        <button class="dashboard-confirm" type="submit">Save Course</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

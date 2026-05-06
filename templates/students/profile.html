@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-stage">
+  <div class="console-card">
+    <div class="page-heading">
+      <div><p class="eyebrow">Student Space</p><h1>Profile</h1></div>
+    </div>
+    <div class="profile-grid">
+      <div class="signal-card signal-card--profile"><div class="signal-card__label">Full Name</div><div class="signal-card__value signal-card__value--small">{{ student.full_name }}</div></div>
+      <div class="signal-card"><div class="signal-card__label">Reg Number</div><div class="signal-card__value signal-card__value--small">{{ student.reg_number }}</div></div>
+      <div class="signal-card"><div class="signal-card__label">Programme</div><div class="signal-card__value signal-card__value--small">{{ student.programme }}</div></div>
+      <div class="signal-card"><div class="signal-card__label">Year of Study</div><div class="signal-card__value signal-card__value--small">{{ student.year_of_study }}</div></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

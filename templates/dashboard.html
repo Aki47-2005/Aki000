@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body_class %}dashboard-page{% endblock %}
+{% block content %}
+<section class="dashboard-stage">
+  <img class="dashboard-stage__ambient" src="{% static 'img/care-dashboard-reference.png' %}" alt="">
+  <div class="dashboard-stage__wash"></div>
+
+  <div class="dashboard-console">
+    <div class="dashboard-console__top">
+      <div>
+        <p class="eyebrow dashboard-eyebrow">Realtime Overview</p>
+        <h1>Dashboard</h1>
+      </div>
+      <div class="dashboard-console__actions">
+        <div class="dashboard-orbit">
+          <span class="is-active"><i class="bi bi-grid-1x2-fill"></i></span>
+          <span><i class="bi bi-people-fill"></i></span>
+          <span><i class="bi bi-graph-up-arrow"></i></span>
+          <span><i class="bi bi-bell-fill"></i></span>
+        </div>
+        <a class="btn dashboard-action" href="{% if user.is_admin_role %}{% url 'admin_reports' %}{% else %}{% url 'register_course' %}{% endif %}">
+          <i class="bi bi-arrow-up-right"></i>
+          {% if user.is_admin_role %}Open Reports{% else %}Register Courses{% endif %}
+        </a>
+      </div>
+    </div>
+
+    {% if user.is_admin_role %}
+      <div class="dashboard-grid">
+        <aside class="dashboard-rail">
+          <div class="dashboard-toggle-group">
+            <span class="is-active">Live</span>
+            <span>Snapshot</span>
+          </div>
+
+          <article class="signal-card">
+            <div class="signal-card__label">Students</div>
+            <div class="signal-card__value">{{ total_students }}</div>
+            <div class="signal-card__meta">Registered profiles in the system</div>
+            <div class="signal-slider"><i style="width: 100%"></i></div>
+          </article>
+
+          <article class="signal-card">
+            <div class="signal-card__label">Verified Payments</div>
+            <div class="signal-card__value">{{ verified_payments }}</div>
+            <div class="signal-card__meta">{{ pending_payments }} pending finance reviews</div>
+            <div class="signal-slider"><i style="width: {% if total_payments %}{% widthratio verified_payments total_payments 100 %}{% else %}0{% endif %}%"></i></div>
+          </article>
+
+          <article class="signal-card">
+            <div class="signal-card__label">Registrations</div>
+            <div class="signal-card__value">{{ total_registrations }}</div>
+            <div class="signal-card__meta">Course picks across all semesters</div>
+            <div class="signal-pairs">
+              <span>Courses</span>
+              <strong>{{ total_courses }}</strong>
+            </div>
+            <div class="signal-pairs">
+              <span>Payments</span>
+              <strong>{{ total_payments }}</strong>
+            </div>
+          </article>
+
+          <a class="dashboard-confirm" href="{% url 'clearance_queue' %}">Review Clearance</a>
+        </aside>
+
+        <div class="dashboard-main">
+          <section class="chart-shell">
+            <div class="chart-shell__header">
+              <div class="dashboard-toggle-group dashboard-toggle-group--compact">
+                <span class="is-active">Specific Range</span>
+                <span>Entire Pool</span>
+              </div>
+              <div class="chart-shell__legend">
+                <span><i class="legend-dot legend-dot--green"></i> Healthy registration</span>
+                <span><i class="legend-dot legend-dot--amber"></i> Review window</span>
+                <span><i class="legend-dot legend-dot--red"></i> Capacity pressure</span>
+              </div>
+            </div>
+
+            <div class="flow-surface">
+              <div class="flow-surface__zones">
+                <span class="flow-zone flow-zone--green"></span>
+                <span class="flow-zone flow-zone--amber"></span>
+                <span class="flow-zone flow-zone--red"></span>
+              </div>
+              <div class="flow-axis flow-axis--left">Low load</div>
+              <div class="flow-axis flow-axis--right">Peak demand</div>
+              <div class="flow-bars">
+                {% for item in registrations_by_semester %}
+                  <div class="flow-bar">
+                    <div class="flow-bar__value">{{ item.total }}</div>
+                    <i style="height:{% if total_registrations %}{% widthratio item.total total_registrations 88 %}{% else %}10{% endif %}%"></i>
+                    <small>{{ item.semester }}</small>
+                  </div>
+                {% empty %}
+                  <div class="flow-empty">No registration traffic yet.</div>
+                {% endfor %}
+              </div>
+            </div>
+          </section>
+
+          <div class="dashboard-lower">
+            <section class="console-panel">
+              <div class="console-panel__title">
+                <h2>Recent Activity</h2>
+                <span>Audit trail</span>
+              </div>
+              <div class="activity-feed">
+                {% for log in recent_logs %}
+                  <div class="activity-feed__item">
+                    <span class="activity-dot {% if log.action == 'LOGIN' %}success{% elif log.action == 'LOGOUT' %}danger{% else %}info{% endif %}"></span>
+                    <div>
+                      <strong>{{ log.user|default:"System" }}</strong>
+                      <span>{{ log.action }}</span>
+                    </div>
+                    <time>{{ log.timestamp|timesince }} ago</time>
+                  </div>
+                {% empty %}
+                  <div class="flow-empty">No activity logged yet.</div>
+                {% endfor %}
+              </div>
+            </section>
+
+            <section class="console-panel console-panel--narrow">
+              <div class="console-panel__title">
+                <h2>Course Demand</h2>
+                <span>Top 5</span>
+              </div>
+              <div class="demand-list">
+                {% for course in course_popularity %}
+                  <div class="demand-list__item">
+                    <div>
+                      <strong>{{ course.code }}</strong>
+                      <span>{{ course.title }}</span>
+                    </div>
+                    <b>{{ course.total }}</b>
+                  </div>
+                {% empty %}
+                  <div class="flow-empty">No course demand data yet.</div>
+                {% endfor %}
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="dashboard-grid dashboard-grid--student">
+        <aside class="dashboard-rail">
+          <article class="signal-card signal-card--profile">
+            <div class="signal-card__label">Student Profile</div>
+            <div class="signal-card__value signal-card__value--small">{{ student.full_name }}</div>
+            <div class="signal-card__meta">{{ student.reg_number }}</div>
+            <div class="signal-pairs">
+              <span>Programme</span>
+              <strong>{{ student.programme }}</strong>
+            </div>
+            <div class="signal-pairs">
+              <span>Year</span>
+              <strong>{{ student.year_of_study }}</strong>
+            </div>
+          </article>
+
+          <article class="signal-card">
+            <div class="signal-card__label">My Load</div>
+            <div class="signal-card__value">{{ registrations|length }}</div>
+            <div class="signal-card__meta">Courses currently on your slip</div>
+            <div class="signal-slider"><i style="width: {% if registrations|length %}{% widthratio registrations|length 8 100 %}{% else %}0{% endif %}%"></i></div>
+          </article>
+
+          <article class="signal-card">
+            <div class="signal-card__label">Finance Status</div>
+            <div class="signal-card__value">{{ verified_payments }}</div>
+            <div class="signal-card__meta">Payments verified in the system</div>
+            <div class="signal-pairs">
+              <span>Notifications</span>
+              <strong>{{ unread_notifications_count }}</strong>
+            </div>
+          </article>
+
+          <a class="dashboard-confirm" href="{% url 'registration_slip' %}">Download Slip</a>
+        </aside>
+
+        <div class="dashboard-main">
+          <section class="chart-shell">
+            <div class="chart-shell__header">
+              <div class="dashboard-toggle-group dashboard-toggle-group--compact">
+                <span class="is-active">My Semester</span>
+                <span>Archive</span>
+              </div>
+              <div class="chart-shell__legend">
+                <span><i class="legend-dot legend-dot--green"></i> Active picks</span>
+                <span><i class="legend-dot legend-dot--amber"></i> Pending review</span>
+              </div>
+            </div>
+
+            <div class="flow-surface flow-surface--student">
+              <div class="flow-surface__zones">
+                <span class="flow-zone flow-zone--green"></span>
+                <span class="flow-zone flow-zone--amber"></span>
+                <span class="flow-zone flow-zone--red"></span>
+              </div>
+              <div class="flow-bars flow-bars--student">
+                {% for registration in registrations %}
+                  <div class="flow-bar">
+                    <div class="flow-bar__value">{{ registration.course.credit_units }}</div>
+                    <i style="height:{% widthratio registration.course.credit_units 6 88 %}%"></i>
+                    <small>{{ registration.course.code }}</small>
+                  </div>
+                {% empty %}
+                  <div class="flow-empty">No course selections yet.</div>
+                {% endfor %}
+              </div>
+            </div>
+          </section>
+
+          <div class="dashboard-lower">
+            <section class="console-panel">
+              <div class="console-panel__title">
+                <h2>Registration Slip</h2>
+                <span>Current semester</span>
+              </div>
+              <div class="console-table">
+                <div class="console-table__head">
+                  <span>Course</span>
+                  <span>Status</span>
+                  <span>Registered</span>
+                </div>
+                {% for registration in registrations %}
+                  <div class="console-table__row">
+                    <div>
+                      <strong>{{ registration.course.code }}</strong>
+                      <span>{{ registration.course.title }}</span>
+                    </div>
+                    <b class="status-chip">{{ registration.status }}</b>
+                    <time>{{ registration.registered_at|timesince }} ago</time>
+                  </div>
+                {% empty %}
+                  <div class="flow-empty">No course registrations yet.</div>
+                {% endfor %}
+              </div>
+            </section>
+
+            <section class="console-panel console-panel--narrow">
+              <div class="console-panel__title">
+                <h2>Quick Links</h2>
+                <span>Actions</span>
+              </div>
+              <div class="shortcut-stack">
+                <a href="{% url 'register_course' %}">Open course registration</a>
+                <a href="{% url 'submit_payment' %}">Submit payment proof</a>
+                <a href="{% url 'notification_list' %}">View notifications</a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

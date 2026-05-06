@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body_class %}login-page{% endblock %}
+{% block content %}
+<section class="login-shell">
+  <div class="login-visual" aria-hidden="true">
+    <img src="{% static 'img/login-hero.png' %}" alt="">
+  </div>
+  <div class="login-side">
+    <div class="login-card">
+      <h1>Login</h1>
+      <p class="login-copy">Welcome back! Please login to your account.</p>
+
+      <button class="oauth-button" type="button" disabled>
+        <span class="google-mark">G</span>
+        <span>Sign in with Google</span>
+      </button>
+
+      <div class="divider"><span>OR</span></div>
+
+      <form method="post" class="login-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="form-error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <label class="floating-field" for="{{ form.username.id_for_label }}">
+          <span>Username</span>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </label>
+
+        <label class="floating-field password-field" for="{{ form.password.id_for_label }}">
+          <span>Password</span>
+          {{ form.password }}
+          <button class="password-toggle" type="button" aria-label="Show password">Show</button>
+          {{ form.password.errors }}
+        </label>
+
+        <div class="login-options">
+          <label class="remember"><input type="checkbox" name="remember"> Remember Me</label>
+          <a href="#">Forget Password?</a>
+        </div>
+
+        <button class="login-submit" type="submit">Login</button>
+      </form>
+
+      <p class="signup-copy">Don't have an account? <a href="#">Sign up</a></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

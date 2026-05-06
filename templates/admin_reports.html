@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-stage">
+  <div class="console-card">
+    <div class="page-heading">
+      <div><p class="eyebrow">Analytics</p><h1>Admin Reports</h1></div>
+      <a class="btn btn-success" href="?semester={{ semester }}&programme={{ programme }}&course={{ course_id }}&format=csv"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
+    </div>
+
+    <form method="get" class="row g-3 align-items-end console-toolbar mb-4">
+      <div class="col-12 col-md-3">
+        <label class="form-label">Semester</label>
+        <select class="form-select" name="semester">
+          <option value="">All semesters</option>
+          {% for item in semesters %}<option value="{{ item }}" {% if item == semester %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label">Programme</label>
+        <select class="form-select" name="programme">
+          <option value="">All programmes</option>
+          {% for item in programmes %}<option value="{{ item }}" {% if item == programme %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Course</label>
+        <select class="form-select" name="course">
+          <option value="">All courses</option>
+          {% for course in courses %}<option value="{{ course.id }}" {% if course.id|stringformat:"s" == course_id %}selected{% endif %}>{{ course.code }} - {{ course.title }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-2 d-grid"><button class="btn btn-outline-primary">Apply</button></div>
+    </form>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-4"><div class="stat-card"><div class="stat-icon"><i class="bi bi-people"></i></div><span>Total Students</span><strong>{{ total_students }}</strong><small>Across programmes</small></div></div>
+      <div class="col-12 col-md-4"><div class="stat-card"><div class="stat-icon"><i class="bi bi-cash-stack"></i></div><span>Verified Payments</span><strong>UGX {{ payment_total }}</strong><small>Revenue summary</small></div></div>
+      <div class="col-12 col-md-4"><div class="stat-card"><div class="stat-icon"><i class="bi bi-journal-check"></i></div><span>Registrations</span><strong>{{ registrations.count }}</strong><small>Current filter</small></div></div>
+    </div>
+  </div>
+
+  <div class="console-card">
+    <div class="section-title"><h2>Registrations Per Course</h2><span class="console-note">Enrollment trend</span></div>
+    <div class="bar-list">
+      {% for course in per_course %}
+        <div class="bar-row"><span>{{ course.code }}</span><div><i style="width: {% if registrations.count %}{% widthratio course.total_registrations registrations.count 100 %}{% else %}0{% endif %}%"></i></div><strong>{{ course.total_registrations }}</strong></div>
+      {% empty %}
+        <p class="text-muted mb-0">No courses found.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

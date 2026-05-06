@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-stage">
+  <div class="console-card">
+    <div class="page-heading">
+      <div><p class="eyebrow">Registry</p><h1>Students</h1></div>
+      <a class="btn dashboard-action" href="{% url 'student_create' %}"><i class="bi bi-plus-lg"></i> Add Student</a>
+    </div>
+
+    <form class="row g-3 align-items-end console-toolbar" method="get">
+      <div class="col-12 col-lg-5">
+        <label class="form-label">Search</label>
+        <div class="input-group"><span class="input-group-text"><i class="bi bi-search"></i></span><input class="form-control" name="q" value="{{ query }}" placeholder="Name, reg number, or username"></div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label">Programme</label>
+        <select class="form-select" name="programme">
+          <option value="">All programmes</option>
+          {% for item in programmes %}<option value="{{ item }}" {% if item == programme %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <label class="form-label">Year</label>
+        <select class="form-select" name="year">
+          <option value="">All years</option>
+          {% for item in years %}<option value="{{ item }}" {% if item|stringformat:"s" == year %}selected{% endif %}>Year {{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-lg-2 d-grid"><button class="btn btn-outline-primary">Apply</button></div>
+    </form>
+
+    <div class="table-responsive console-table-wrap">
+      <table class="table align-middle console-table-theme">
+        <thead><tr><th>Name</th><th>Reg No</th><th>Programme</th><th>Year</th><th class="text-end">Actions</th></tr></thead>
+        <tbody>
+        {% for student in students %}
+          <tr>
+            <td><strong>{{ student.full_name }}</strong><br><span class="text-muted">{{ student.user.email|default:student.user.username }}</span></td>
+            <td><span class="status-chip">{{ student.reg_number }}</span></td>
+            <td>{{ student.programme }}</td>
+            <td>Year {{ student.year_of_study }}</td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-light" href="{% url 'student_update' student.pk %}" title="Edit"><i class="bi bi-pencil"></i></a>
+              <a class="btn btn-sm btn-outline-danger" href="{% url 'student_delete' student.pk %}" title="Delete"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="text-muted">No students found.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
